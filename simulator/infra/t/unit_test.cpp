@@ -209,33 +209,31 @@ TEST_CASE("Find first set")
     CHECK( find_first_set( *val) == bitwidth<unsigned> );
 }
 
-TEST_CASE("Test hexadecimal printing")
+static std::string uint128_to_hex_string(uint128 number)
 {
-    uint128 test_value = 0xABCDEF;
     std::ostringstream out;
-    out << std::hex << test_value;
-    CHECK(( out.str() == "0abcdef" || out.str() == "ABCDEF"));
+    out << std::hex << std::uppercase << number;
+    return out;
 }
 
-std::string uint128_to_string(uint128 number)
+static std::string uint128_to_dec_string(uint128 number)
 {
      std::ostringstream out;
      out << number;
      return out.str();
 }
 
-TEST_CASE("Test uint128 decimal printing number under uint64_max")
+TEST_CASE("Test uint128 decimal printing")
 {
-    CHECK( uint128_to_string( 1) == "1");
+    CHECK( uint128_to_dec_string( 1) == "1");
+    CHECK( uint128_to_dec_string( narrow_cast<uint128>(UINT64_MAX) + 1) == "18446744073709551616");
+    CHECK( uint128_to_dec_string( all_ones<uint128>()) == "340282366920938463463374607431768211455");
 }
 
-
-TEST_CASE("Test uint128 decimal printing number over uint64_max")
+TEST_CASE("Test uint128 hexadecimal printing")
 {
-    CHECK( uint128_to_string( narrow_cast<uint128>(UINT64_MAX) + 1) == "18446744073709551616");
-}
-
-TEST_CASE("Test uint128 decimal printing number over 10^39")
-{
-    CHECK( uint128_to_string( all_ones<uint128>()) == "340282366920938463463374607431768211455"); //2^128 - 1;
+    CHECK( uint128_to_hex_string( 1) == "1");
+    CHECK( uint128_to_hex_string( 0xABCDEF) == "ABCDEF");
+    CHECK( uint128_to_hex_string( narrow_cast<uint128>(UINT64_MAX) + 1) == "10000000000000000");
+    CHECK( uint128_to_hex_string( all_ones<uint128>()) == "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 }
