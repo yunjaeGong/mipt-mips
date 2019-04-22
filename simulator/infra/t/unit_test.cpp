@@ -213,7 +213,7 @@ static std::string uint128_to_hex_string(uint128 number)
 {
     std::ostringstream out;
     out << std::hex << std::uppercase << number;
-    return out;
+    return out.str();
 }
 
 static std::string uint128_to_dec_string(uint128 number)
