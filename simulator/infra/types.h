@@ -45,18 +45,28 @@ using float64 = double;
 using int128 = __int128;
 using uint128 = unsigned __int128;
 
+static inline std::ostream decimal_dump_of_uint128(std::ostream& out, uint128 value)
+{
+    if (value <= UINT64_MAX)
+        return out << narrow_cast<uint64>( value);
+
+    static const uint128 separator{ 10'000'000'000'000'000'000u};
+    const uint64 trailing = value % separator;
+    return decimap_dump_of_uint128(out, value / separator) << trailing;
+}
+
 static inline std::ostream& operator<<(std::ostream& out, uint128 value)
 {
-    static const uint128 separator = 10'000'000'000'000'000'000u;
-
-     if ((out.flags() & std::ios::hex) != 0)
-        return out << narrow_cast<uint64>( value >> 64ULL) << narrow_cast<uint64>( value);
+    if ((out.flags() & std::ios::dec) != 0)
+        return decimal_dump_of_uint128(out, number);
 
     if (value <= UINT64_MAX)
         return out << narrow_cast<uint64>( value);
-    uint128 leading  = value / separator;
-    uint64  trailing = value % separator;
-    return out << leading << trailing;
+
+    std::ios_base::fmtflags flags( out.flags() );
+    out << narrow_cast<uint64>(number >> 64ULL) << std::setfill('0') << std::setw(64 / 4) << narrow_cast<uint64>(number);
+    out.flags( flags);
+    return out;
 }
 
 #pragma GCC diagnostic pop
